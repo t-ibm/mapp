@@ -19,6 +19,6 @@ class HelloControllerTest {
         val request: HttpRequest<*> = HttpRequest.GET<Any>("/hello").accept(MediaType.TEXT_PLAIN)
         val body = client!!.toBlocking().retrieve(request)
         assertNotNull(body)
-        assertEquals("Hello World", body)
+        assertEquals("Hello World.", body)
     }
 }
