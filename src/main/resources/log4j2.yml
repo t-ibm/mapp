@@ -1,0 +1,35 @@
+---
+configuration:
+  name: mapp
+  appenders:
+    console:
+      - name: stdout
+        target: SYSTEM_OUT
+        patternLayout:
+          pattern: "%d{HH:mm:ss.SSS} %-5level [%t] %logger{36} - %msg%n"
+        filters:
+          thresholdFilter:
+            level: warn
+            onMatch: deny
+            onMismatch: accept
+      - name: stderr
+        target: SYSTEM_ERR
+        patternLayout:
+          pattern: "%d{HH:mm:ss.SSS} %-5level [%t] %logger{36} - %msg%n"
+        filters:
+          thresholdFilter:
+            level: warn
+            onMatch: accept
+  loggers:
+    logger:
+      - name: cloud.softwareag
+        level: info
+        additivity: false
+        appenderRef:
+          - ref: stdout
+          - ref: stderr
+    root:
+      level: error
+      appenderRef:
+        - ref: stderr
+...
