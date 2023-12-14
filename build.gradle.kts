@@ -8,11 +8,12 @@ plugins {
     id("io.micronaut.aot") version "4.2.0"
 }
 
-version = "0.1"
+version = "0.0.1"
 group = "cloud.softwareag"
 
 val kotlinVersion = project.properties["kotlinVersion"]
 val log4jVersion = project.properties["log4jVersion"]
+val jacksonVersion = project.properties["jacksonVersion"]
 
 repositories {
     mavenCentral()
@@ -28,9 +29,9 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}")
     compileOnly("io.micronaut:micronaut-http-client")
-    runtimeOnly("ch.qos.logback:logback-classic")
-    runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin")
-    runtimeOnly("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
+    runtimeOnly("ch.qos.logback:logback-classic:1.4.14")
+    runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin:${jacksonVersion}")
+    runtimeOnly("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${jacksonVersion}")
     runtimeOnly("org.apache.logging.log4j:log4j-core:${log4jVersion}")
     testImplementation("io.micronaut:micronaut-http-client")
 }
