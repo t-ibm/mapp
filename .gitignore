@@ -1,15 +1,24 @@
-Thumbs.db
-.DS_Store
+### Donwloaded binaries
+.bin
+
+### Gradle
 .gradle
 build/
-target/
-out/
-.micronaut/
+
+### Helm
+**/Chart.lock
+**/charts/*.tgz
+
+### IntelliJ IDEA
 .idea
 *.iml
-*.ipr
-*.iws
-.project
-.settings
+out/
+
+### Eclipse ###
 .classpath
-.factorypath
+.project
+.settings/
+bin/
+
+### virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
