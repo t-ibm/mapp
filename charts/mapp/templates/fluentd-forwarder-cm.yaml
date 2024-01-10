@@ -1,0 +1,107 @@
+{{- $fullName := (include "common.names.fullname" .) }}
+{{- $namespace := .Release.Namespace }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-fluentd-forwarder-cm" $fullName | trunc 63 | trimSuffix "-" }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" .Values.fluentd.commonLabels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/component: forwarder
+data:
+  fluentd.conf: |
+    # Ignore fluentd own events
+    <match fluent.**>
+      @type null
+    </match>
+
+    @include fluentd-inputs.conf
+    @include fluentd-output.conf
+    {{- if .Values.fluentd.metrics.enabled }}
+    @include metrics.conf
+    {{- end }}
+  fluentd-inputs.conf: |
+    # HTTP input for the liveness and readiness probes
+    <source>
+      @type http
+      port 9880
+    </source>
+    # Get the logs from the containers running in the node
+    <source>
+      @type tail
+      {{ printf "path /var/log/containers/%s-fluentd-*_%s_%s-*.log" $fullName $namespace $fullName }}
+      pos_file /opt/bitnami/fluentd/logs/buffers/fluentd-docker.pos
+      tag kubernetes.*
+      read_from_head true
+      <parse>
+        @type json
+        time_key time
+        time_format %Y-%m-%dT%H:%M:%S.%NZ
+      </parse>
+    </source>
+  fluentd-output.conf: |
+    # Throw the healthcheck to the standard output instead of forwarding it
+    <match fluentd.healthcheck>
+      @type stdout
+    </match>
+    {{- if .Values.fluentd.aggregator.enabled }}
+    # Forward all logs to the aggregators
+    <match **>
+      @type forward
+      {{- if .Values.fluentd.tls.enabled }}
+      transport tls
+      tls_cert_path /opt/bitnami/fluentd/certs/out_forward/ca.crt
+      tls_client_cert_path /opt/bitnami/fluentd/certs/out_forward/tls.crt
+      tls_client_private_key_path /opt/bitnami/fluentd/certs/out_forward/tls.key
+      {{- end }}
+      {{- $domain := default "cluster.local" .Values.fluentd.clusterDomain }}
+      {{- $port := .Values.fluentd.aggregator.port | int }}
+      {{- range $i, $e := until (.Values.fluentd.aggregator.replicaCount | int) }}
+      <server>
+        {{ printf "host %s-fluentd-%d.%s-fluentd-headless.%s.svc.%s" $fullName $i $fullName $namespace $domain }}
+        {{ printf "port %d" $port }}
+        {{- if ne $i 0 }}
+        standby
+        {{- end }}
+      </server>
+      {{- end }}
+      <buffer>
+        @type file
+        path /opt/bitnami/fluentd/logs/buffers/logs.buffer
+        flush_thread_count 2
+        flush_interval 5s
+      </buffer>
+    </match>
+    {{- else }}
+    # Send the logs to the standard output
+    <match **>
+      @type stdout
+    </match>
+    {{- end }}
+  metrics.conf: |
+    # Prometheus Exporter Plugin
+    # input plugin that exports metrics
+    <source>
+      @type prometheus
+      port {{ .Values.fluentd.metrics.service.port }}
+    </source>
+    # input plugin that collects metrics from MonitorAgent
+    <source>
+      @type prometheus_monitor
+      <labels>
+        host ${hostname}
+      </labels>
+    </source>
+    # input plugin that collects metrics for output plugin
+    <source>
+      @type prometheus_output_monitor
+      <labels>
+        host ${hostname}
+      </labels>
+    </source>
+    # input plugin that collects metrics for in_tail plugin
+    <source>
+      @type prometheus_tail_monitor
+      <labels>
+        host ${hostname}
+      </labels>
+    </source>
