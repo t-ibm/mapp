@@ -1,0 +1,9 @@
+*       text eol=lf
+*.jar   binary
+*.gz    binary
+*.zip   binary
+*.pdf   binary
+*.mp4   binary
+*.png   binary
+*.jks   binary
+*.p12   binary

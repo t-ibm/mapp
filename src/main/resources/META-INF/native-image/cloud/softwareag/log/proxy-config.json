@@ -1,0 +1,8 @@
+[
+  {
+    "interfaces":["cloud.softwareag.log.annotation.event.Session"]
+  },
+  {
+    "interfaces":["cloud.softwareag.log.annotation.event.Simple"]
+  }
+]
