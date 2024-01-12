@@ -1,0 +1,29 @@
+---
+fluentd:
+  aggregator:
+    configMap: mapp-fluentd-aggregator-cm
+  forwarder:
+    configMap: mapp-fluentd-forwarder-cm
+    service:
+      ports:
+        http:
+          port: 9880
+          protocol: TCP
+          targetPort: http
+        http-app:
+          port: 8080
+          protocol: TCP
+          targetPort: http-app
+    sidecars:
+      - name: mapp
+        image: local/mapp-native:0.0.1
+        imagePullPolicy: IfNotPresent
+        ports:
+          - name: http-app
+            containerPort: 8080
+kibana:
+  elasticsearch:
+    hosts:
+      - mapp-elasticsearch.mapp-test.svc.cluster.local
+    port: 9200
+...
