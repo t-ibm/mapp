@@ -1,0 +1,12 @@
+You have deployed the following release: {{ .Release.Name }}
+To get further information, you can run commands
+$ helm list --all-namespaces
+$ helm --namespace {{ .Release.Namespace }} test {{ .Release.Name }}
+$ kubectl --namespace {{ .Release.Namespace }} logs {{ .Chart.Name }}-test-connection
+$ kubectl --namespace {{ .Release.Namespace }} get pods
+$ kubectl --namespace {{ .Release.Namespace }} get deploy
+$ kubectl --namespace {{ .Release.Namespace }} get ds
+$ kubectl --namespace {{ .Release.Namespace }} get sts
+$ kubectl --namespace {{ .Release.Namespace }} get svc
+$ kubectl --namespace {{ .Release.Namespace }} get ev
+Use `kubectl api-resources` for a complete list of supported resources.
