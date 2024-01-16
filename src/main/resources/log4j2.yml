@@ -1,12 +1,14 @@
 ---
 configuration:
   name: mapp
+  status: fatal
+  dest: err
   appenders:
     console:
       - name: stdout
         target: SYSTEM_OUT
         patternLayout:
-          pattern: "%d{HH:mm:ss.SSS} %-5level [%t] %logger{36} - %msg%n"
+          pattern: "%d{HH:mm:ss.SSS} - main - %-5level [%6.6t] %32.32logger - %msg%n"
         filters:
           thresholdFilter:
             level: warn
@@ -15,21 +17,35 @@ configuration:
       - name: stderr
         target: SYSTEM_ERR
         patternLayout:
-          pattern: "%d{HH:mm:ss.SSS} %-5level [%t] %logger{36} - %msg%n"
+          pattern: "%d{HH:mm:ss.SSS} - main - %-5level [%6.6t] %32.32logger - %msg%n"
         filters:
           thresholdFilter:
             level: warn
             onMatch: accept
+    list:
+      - name: cloud.softwareag.log.appender.ListAppender
+        RFC5424Layout:
+          appName: MyApp
+          enterpriseNumber: 1028
+          includeMDC: true
+          mdcId: AuditContext
   loggers:
     logger:
       - name: cloud.softwareag
-        level: info
+        level: debug
         additivity: false
         appenderRef:
           - ref: stdout
           - ref: stderr
+      - name: cloud.softwareag.log.AuditLogger
+        level: info
+        additivity: true
+        appenderRef:
+          - ref: cloud.softwareag.log.appender.ListAppender
+          - ref: stdout
     root:
-      level: error
+      level: info
       appenderRef:
+        - ref: stdout
         - ref: stderr
 ...
