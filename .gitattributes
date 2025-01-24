@@ -1,4 +1,7 @@
-*       text eol=lf
+*	    text=auto
+*.txt	text
+*.bat	text eol=crlf
+*.sh	text eol=lf
 *.jar   binary
 *.gz    binary
 *.zip   binary
